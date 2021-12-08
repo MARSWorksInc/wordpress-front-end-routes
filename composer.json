@@ -1,0 +1,21 @@
+{
+  "name": "marspress/front-end-route",
+  "description": "Utility package to create custom front-end routes in WordPress.",
+  "type": "library",
+  "license": "GPL-2.0",
+  "autoload": {
+    "psr-4": {
+      "MarsPress\\FrontEndRoute\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "MARSWorks Inc",
+      "email": "wordpress@marsworks.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=7.4"
+  }
+}
