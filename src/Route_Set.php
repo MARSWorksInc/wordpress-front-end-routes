@@ -281,7 +281,6 @@ if( ! class_exists( 'Route_Set' ) )
 
                 }
 
-
                 if( isset( $customTemplate ) && is_string( $customTemplate ) && strlen( $customTemplate ) > 0 ){
 
                     global $wp_query;
@@ -388,7 +387,20 @@ if( ! class_exists( 'Route_Set' ) )
 
                     }
 
-                    $this->routes[$_route->get_slug()] = $_route;
+                    if( ! array_key_exists( $_route->get_slug(), $this->routes ) ){
+
+                        $this->routes[$_route->get_slug()] = $_route;
+
+                    }else{
+
+                        $message = "The slug <strong><em>{$_route->get_slug()}</em></strong> in the route set <strong><em>{$this->queryVar}</em></strong> already exists. Please update your slug to a unique value for the route set.";
+                        add_action( 'admin_notices', function () use ($message){
+                            $output = $this->output_admin_notice($message);
+                            echo $output;
+                        }, 10, 0 );
+
+                    }
+
 
                 }
 
@@ -396,10 +408,10 @@ if( ! class_exists( 'Route_Set' ) )
 
         }
 
-        private function output_admin_notice( $_message ): string
+        private function output_admin_notice( string $_message ): string
         {
 
-            if( isset( $this->adminNotices ) && \current_user_can( 'administrator' ) ){
+            if( strlen( $_message ) > 0 && \current_user_can( 'administrator' ) ){
 
                 return "<div style='background: white; padding: 12px 20px; border-radius: 3px; border-left: 5px solid #dc3545;' class='notice notice-error is-dismissible'><p style='font-size: 16px;'>$_message</p><small><em>This message is only visible to site admins</em></small></div>";
 
