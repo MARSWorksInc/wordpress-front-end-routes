@@ -15,6 +15,8 @@ if( ! class_exists( 'Route_Set' ) )
 
         private string $slug;
 
+        private bool $hasArchive;
+
         private ?string $template;
 
         private string $bodyClass;
@@ -29,6 +31,7 @@ if( ! class_exists( 'Route_Set' ) )
         public function __construct(
             string $_queryVar,
             string $_slug = null,
+            bool $_hasArchive = false,
             string $_bodyClass = null,
             string $_template = null
         )
@@ -40,6 +43,12 @@ if( ! class_exists( 'Route_Set' ) )
 
             }
 
+            if( strlen( $_slug ) === 0 ){
+
+                $_hasArchive = false;
+
+            }
+
             if( is_null( $_bodyClass ) ){
 
                 $_bodyClass = $_queryVar;
@@ -48,6 +57,7 @@ if( ! class_exists( 'Route_Set' ) )
 
             $this->queryVar = $_queryVar;
             $this->slug = $_slug;
+            $this->hasArchive = $_hasArchive;
             $this->template = $_template;
             $this->bodyClass = $_bodyClass;
             $this->queryVarExists = false;
@@ -206,12 +216,28 @@ if( ! class_exists( 'Route_Set' ) )
         public function register_rewrite_rules()
         {
 
+            if( $this->hasArchive ){
+
+                add_rewrite_rule( "^$this->slug?$", 'index.php?' . $this->queryVar . '=archive', 'top' );
+
+            }
+
             if( isset( $this->routes ) ){
+
+                if( strlen($this->slug) === 0 ){
+
+                    $parentSlug = '';
+
+                }else{
+
+                    $parentSlug = $this->slug . '/';
+
+                }
 
                 foreach ( $this->routes as $_route ){
 
                     $slug = $_route->get_slug();
-                    add_rewrite_rule( "^$this->slug/$slug?$", 'index.php?' . $this->queryVar . '=' . $slug, 'top' );
+                    add_rewrite_rule( "^$parentSlug$slug?$", 'index.php?' . $this->queryVar . '=' . $slug, 'top' );
 
                 }
 
@@ -234,7 +260,7 @@ if( ! class_exists( 'Route_Set' ) )
 
                 $routeObject = $this->get_route_object($route);
 
-                if( is_null( $routeObject ) ){ return $_template; }
+                if( is_null( $routeObject ) && ! $this->hasArchive ){ return $_template; }
 
                 $queryVarFileName = 'marspress-route-' . $this->queryVar . '.php';
                 $routeFileName = 'marspress-route-' . $this->queryVar . '-' . $route . '.php';
@@ -271,7 +297,10 @@ if( ! class_exists( 'Route_Set' ) )
 
                 }
 
-                if( ! is_null( $overridingTemplate = $routeObject->get_template() ) ){
+                if(
+                    ! is_null( $routeObject ) &&
+                    ! is_null( $overridingTemplate = $routeObject->get_template() )
+                ){
 
                     if( file_exists( $overridingTemplate ) ){
 

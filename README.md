@@ -6,7 +6,7 @@ Require the composer package in your composer.json with `marspress/front-end-rou
 You will first need to create a Route Set. You can think of these like a Post Type and the Routes in the set are like the posts of that type.
 
 #### Route Set
-`new \MarsPress\FrontEndRoute\Route_Set()` takes 4 parameters, 1 required and 3 optional.
+`new \MarsPress\FrontEndRoute\Route_Set()` takes 5 parameters, 1 required and 4 optional.
 * Query Variable (required)(string)
   * A unique query variable that will be registered in the available Query Variables to the WP and WP_Query objects.
   * The query variable should only contain lowercase characters, hyphens, and underscores.
@@ -16,6 +16,12 @@ You will first need to create a Route Set. You can think of these like a Post Ty
   * The slug for your route set without leading or proceeding slashes. E.g. `route/set`
   * This can be considered a Post Type Slug.
   * Defaults to the `query variable`.
+  * IMPORTANT: you may set the slug to an empty string which will generate all the routes in the set without a parent slug. If the slug is an empty string, the Route Set's has archive will be forced to `false`.
+    * WARNING: using this method will cause the Route slugs to override any top level pages and posts in WordPress. It is also recommended to not have multiple Route Sets without parent slugs.
+* Has Archive (optional)(bool)
+  * Whether the Route Set should have an archive route generated for it or not.
+  * E.g. if `true`, the Route Set with a slug `route/set` will have an archive route at `/route/set/`
+  * Defaults to `false`.
 * Body Class (optional)(string)
   * The CSS class that will be added to the rendered body tag.
   * Defaults to the `query variable`.
@@ -80,6 +86,8 @@ To use WordPress' template scope, the prefix used is `marspress-route-`, followe
 * `marspress-route-test_route.php` would load for all Routes in the `test_route` Route Set;
 * `marspress-route-test_route-this-is-a-route.php` would load only for the `this-is-a-route` Route in the `test_route` Route Set;
 * If neither of the above exist on the server, the PArent Theme's index.php will load.
+
+IMPORTANT: If a Route Set has an archive, the query variable value will be `archive`, thus you should use `marspress-route-test_route-archive.php` for the archive template.
 
 #### Route Set Template Parameter
 The Route Set class constructor can take an optional parameter for a template. This will load the given template for all the Routes in the set. This is regardless of the existence of the Theme templates listed above.
